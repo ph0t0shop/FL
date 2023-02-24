@@ -88,8 +88,8 @@ requirejs(['algoliaBundle', 'Magento_Catalog/js/price-utils', 'jquery/jquery.coo
         var instantsearchOptions = {
             searchClient: searchClient,
             indexName: indexName,
-            searchFunction: function (helper) {
-                helper.search();
+            searchFunction: function (helperBypass) {
+                helperBypass.search();
                 $('.algolia-instant-replaced-content').hide();
                 $('.algolia-instant-selector-results').show();
             },
