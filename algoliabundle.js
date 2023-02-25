@@ -1,6 +1,123 @@
 // FUCK CSP REPORTS!
 // FUCK CSP REPORTS!
 
+
+document.querySelector("#instant-hit-template").innerText = /*html*/`<div class="product-item-container">
+<meta content="{{__position}}" />
+<div class="result-wrapper"  >
+    <meta 
+        {{^__queryID}} content="{{dynamicBaseUrl}}" {{/__queryID}}
+        {{#__queryID}} content="{{urlForInsights}}" {{/__queryID}}
+        />
+    <a class="result-content-wrapper"
+       rel="nofollow"
+        {{^__queryID}} href="{{dynamicBaseUrl}}" {{/__queryID}}
+        {{#__queryID}} href="{{urlForInsights}}" {{/__queryID}}
+        data-objectid="{{objectID}}"
+        data-indexname="{{__indexName}}"
+        data-position="{{__position}}"
+        data-queryid="{{__queryID}}" >
+        <div class="result-content">
+            <div class="result-thumbnail">
+                {{#image_url}}<img  src="{{{image_url}}}" alt="{{{name}}}" />{{/image_url}}
+                {{^image_url}}<span class="no-image"></span>{{/image_url}}
+            </div>
+            <div class="result-sub-content" data-affiliation="{{company_name}}" data-car-new="{{car_new}}" data-vehicle-type="{{vehicle_type}}">
+                <h3  class="result-title text-ellipsis">
+                    {{{ _highlightResult.name.value }}}
+                </h3>
+                <h4  class="result-sub-title text-ellipsis">
+                    {{ type }}
+                </h4>
+
+                <table>
+                    <tbody>
+                        <tr>
+                            <td>{{ mileage }}{{#mileage}} km{{/mileage}}
+                                {{#nap_weblabel}}
+                                    <img src="https://www.financiallease.nl/static/version1675157546/frontend/FinancialLease/default/nl_NL/images/nap-logo.jpg" alt="nap logo"/>
+                                {{/nap_weblabel}}
+                            </td>
+                            <td>
+                                {{#engine_power_kw}}
+                                    {{#engine_power_pk}}
+                                        <span class="power">{{ engine_power_pk }} PK / ({{ engine_power_kw }} kW)</span>
+                                    {{/engine_power_pk}}
+
+                                    {{^engine_power_pk}}
+                                        <span class="power-kw">{{ engine_power_kw }} kW</span>
+                                    {{/engine_power_pk}}
+                                {{/engine_power_kw}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{{ buildyear }}</td>
+                            <td>
+                                {{#sales_cost}}
+                                € <span class="item-price">{{sales_cost}}</span>,- aanschafprijs                                        {{/sales_cost}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>{{fuel_type}}</td>
+                            <td>{{transmission}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="product-tile-footer">
+                    <div class="price-wrapper">
+                        <div>
+                                        <span class="after_special
+                                                {{#price.EUR.default_original_formated}}
+                                                    promotion
+                                                {{/price.EUR.default_original_formated}}">
+                                            {{price.EUR.default_formated}}
+                                        </span>
+                            {{#price.EUR.default_original_formated}}
+                            <span class="before_special">
+                                                {{price.EUR.default_original_formated}}
+                                            </span>
+                            {{/price.EUR.default_original_formated}}
+                            {{#price.EUR.default_tier_formated}}
+                            <span class="tier_price">
+                                                As low as                                        <span class="tier_value">{{price.EUR.default_tier_formated}}</span>
+                                            </span>
+                            {{/price.EUR.default_tier_formated}}
+                            p/m
+                        </div>
+                    </div>
+
+                    <a class="button action primary"
+                       rel="nofollow"
+                       {{^__queryID}} href="{{dynamicBaseUrl}}" {{/__queryID}}
+                    {{#__queryID}} href="{{urlForInsights}}" {{/__queryID}}
+                    data-objectid="{{objectID}}"
+                    data-indexname="{{__indexName}}"
+                    data-position="{{__position}}"
+                    data-queryid="{{__queryID}}">
+                    Bekijk deal                            </a>
+                </div>
+                <button class="button secondary open-maps-btn" onclick="geoBtnClicked(this)" style="box-sizing: content-box;" data-url="{{dynamicBaseUrl}}">
+                    <img src="https://i.imgur.com/fYCjX7H.png" style="height: 2.5rem;">
+                    <span>Bekijk op kaart</span>
+                </button>
+            </div>
+        </div>
+        <div class="algolia-clearfix"></div>
+    </a>
+</div>
+</div>`;
+
+async function geoBtnClicked(btn) {
+    const url = btn.dataset.url;
+    const res = await fetch(url);
+    const txt = await res.text();
+    const responseElem = document.createElement("div");
+    responseElem.innerHTML = txt;
+    const addrRows = Array.from(responseElem.querySelectorAll(".c-details-tab__row.public-dealer")).map(elem => elem.querySelector(".c-details-tab__value")?.innerText?.trim());
+    window.open("https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(addrRows.join(", ")), "_blank");
+}
+
 function getGeoLocation() {
     return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -21,11 +138,12 @@ async function getAddressData(postcode, number) {
     }
 }
 
+
 ;(function () {
     (new MutationObserver((mutationList, observer) => {
         for (const mutation of mutationList) {
             for (const node of mutation.addedNodes) {
-                if (node.classList?.contains("is-widget-container-buildyear")) {
+                if (node && node.querySelector && node.querySelector(".ais-ClearRefinements-button")) {
                     observer.disconnect();
                     const distanceSlider = document.createElement("div");
                     distanceSlider.innerHTML = /*html*/`
@@ -54,6 +172,7 @@ async function getAddressData(postcode, number) {
             align-items: center;
             font-size: 1.6rem;
             line-height: 1;
+            margin-top: 7px;
         }
 
         .distance-checkbox::before {
@@ -85,6 +204,16 @@ async function getAddressData(postcode, number) {
         #distance-postcode-input:disabled, #distance-number-input:disabled {
             background-color: #eee;
         }
+
+        button.button.secondary.open-maps-btn {
+            cursor: pointer;
+            position: relative;
+            display: flex;
+            padding: 0.5rem 1rem;
+            align-items: center;
+            justify-content: center;
+            float: right;
+        }
     </style>
     <div class="ais-Panel-body">
         <div>
@@ -115,7 +244,27 @@ async function getAddressData(postcode, number) {
     </div>
 </div>
 `;
-                    node.insertAdjacentElement("afterend", distanceSlider);
+                    document.querySelector(".is-widget-container-buildyear").insertAdjacentElement("afterend", distanceSlider);
+
+                    function createRefinementElem() {
+                        const li = document.createElement("li");
+                        li.id = "dist-refinement-wrapper";
+                        li.style.marginTop = "1.6rem";
+                        li.innerHTML = /*html*/`
+                        <span class="ais-CurrentRefinements-label">Afstand:</span>
+                        <span class="ais-CurrentRefinements-category">
+                            <span>≤</span>
+                            <span id="dist-refinement-span"></span>
+                            <span> vanaf </span>
+                            <span id="dist-loc-refinement-span"></span>
+                            <button class="ais-CurrentRefinements-delete">✕</button>
+                        </span>
+                        `;
+
+                        li.querySelector(".ais-CurrentRefinements-delete").addEventListener("click", clearDistanceFilter);
+
+                        return li;
+                    }
 
                     const distanceSliderBar = distanceSlider.querySelector("#distance-slider-bar");
                     const distanceHandle = distanceSlider.querySelector("#distance-handle");
@@ -133,6 +282,24 @@ async function getAddressData(postcode, number) {
                         lat: -1,
                         lng: -1
                     };
+
+                    let selectedLocText = "ongeldig";
+
+                    const clearFiltersBtn = document.querySelector(".ais-ClearRefinements-button");
+                    const currentRefinementsList = document.querySelector(".ais-CurrentRefinements-list");
+
+                    ;(new MutationObserver(function(mutations, observer) {
+                        for (const mutation of mutations) {
+                            if (clearFiltersBtn.hasAttribute("disabled")) { // button has just been disabled, maybe our filter is still active though
+                                if (selectedThreshold !== "95") {
+                                    clearFiltersBtn.removeAttribute("disabled");
+                                    clearFiltersBtn.classList.remove("ais-ClearRefinements-button--disabled");
+                                }
+                            }
+                        }
+                    })).observe(clearFiltersBtn, {
+                        attributeFilter: ["disabled"]
+                    });
 
                     const thresholds = ["0", "5", "10", "15", "28.5", "40", "52.5", "65", "75", "89", "95", "1000"];
 
@@ -180,21 +347,60 @@ async function getAddressData(postcode, number) {
                     function doDistanceSearch() {
                         setPercentage(percentage, true);
                         if (selectedThreshold === "95") { // Alle afstanden
+                            let distRefinementElem = document.getElementById("dist-refinement-wrapper");
+                            if (distRefinementElem) {
+                                distRefinementElem.parentElement.removeChild(distRefinementElem);
+                            }
                             window.secretAlgolia.mainIndex.getHelper()
                                 .setQueryParameter("aroundRadius", undefined)
                                 .setQueryParameter("aroundLatLng", undefined)
                                 .search();
                         } else if (selectedLatLng.lat === -1 && selectedLatLng.lng === -1) {
                             alert("U heeft geen geldige locatie geselecteerd.");
+                            let distRefinementElem = document.getElementById("dist-refinement-wrapper");
+                            if (distRefinementElem) {
+                                distRefinementElem.parentElement.removeChild(distRefinementElem);
+                            }
                             setPercentage(100);
                             selectedThreshold = "95";
                         } else {
+                            let distRefinementElem = document.getElementById("dist-refinement-wrapper");
+                            if (!distRefinementElem) {
+                                distRefinementElem = createRefinementElem();
+                                currentRefinementsList.appendChild(distRefinementElem);
+                                clearFiltersBtn.removeAttribute("disabled");
+                                clearFiltersBtn.classList.remove("ais-ClearRefinements-button--disabled");
+                            }
+                            distRefinementElem.querySelector("#dist-refinement-span").innerText = thresholdMap[selectedThreshold][0];
+                            distRefinementElem.querySelector("#dist-loc-refinement-span").innerText = selectedLocText;
+
                             window.secretAlgolia.mainIndex.getHelper()
                             .setQueryParameter("aroundRadius", thresholdMap[selectedThreshold][1])
                             .setQueryParameter("aroundLatLng", selectedLatLng.lat + ", " + selectedLatLng.lng)
                             .search();
                         }
                     }
+
+                    const clearDistanceFilter = function() { // clear our filter, triggers AFTER mutationobserver
+                        setPercentage(100);
+                        selectedThreshold = "95";
+                        selectedLatLng = {lat: -1, lng: -1};
+                        selectedLocText = "ongeldig";
+                        postcodeInput.removeAttribute("disabled");
+                        numberInput.removeAttribute("disabled");
+                        postcodeInput.value = "";
+                        numberInput.value = "";
+                        ownLocationCheckbox.checked = false;
+                        ownLocationCheckbox.parentElement.classList.remove("checked");
+                        // if no other filters, disable button
+                        if (currentRefinementsList.childElementCount === 0 || (currentRefinementsList.childElementCount === 1 && currentRefinementsList.firstElementChild.id === "dist-refinement-wrapper")) {
+                            clearFiltersBtn.setAttribute("disabled", "");
+                            clearFiltersBtn.classList.add("ais-ClearRefinements-button--disabled");
+                        }
+                        doDistanceSearch();
+                    };
+
+                    clearFiltersBtn.addEventListener("click", clearDistanceFilter);
 
                     const addressBlur = async function() {
                         if (!(postcodeInput.value && numberInput.value)) {
@@ -207,12 +413,15 @@ async function getAddressData(postcode, number) {
                         }
 
                         try {
-                            const addressData = await getAddressData(postcodeInput.value, numberInput.value);
+                            const postcodeVal = postcodeInput.value;
+                            const numberVal = numberInput.value;
+                            const addressData = await getAddressData(postcodeVal, numberVal);
                             if (addressData.statusCode === 200) {
                                 selectedLatLng = {
                                     lat: addressData.geo.lat,
                                     lng: addressData.geo.lon
                                 }
+                                selectedLocText = postcodeVal + ", " + numberVal;
                                 doDistanceSearch();
                             } else if (addressData.statusCode === 404) {
                                 alert("Er is geen adres gevonden voor deze combinatie van postcode/huisnummer.");
@@ -261,6 +470,7 @@ async function getAddressData(postcode, number) {
                                     lat: geoloc.coords.latitude,
                                     lng: geoloc.coords.longitude
                                 }
+                                selectedLocText = "huidige locatie";
 
                                 postcodeInput.setAttribute("disabled", "disabled");
                                 numberInput.setAttribute("disabled", "disabled");
