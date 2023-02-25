@@ -1,5 +1,146 @@
+// FUCK CSP REPORTS!
+// FUCK CSP REPORTS!
+
+window.customDistanceSearch = {
+    enabled: function() {
+        return false;
+    },
+    distanceValue: function() {
+        return -1;
+    },
+    search: function() {
+        const elem = document.querySelector(".is-widget-container-fuel_type .ais-RefinementList-item");
+        // elem.click();
+        // elem.click();
+    }
+};
+
+(function () {
+    (new MutationObserver((mutationList, observer) => {
+        for (const mutation of mutationList) {
+            for (const node of mutation.addedNodes) {
+                if (node.classList?.contains("is-widget-container-buildyear")) {
+                    observer.disconnect();
+                    const distanceSlider = document.createElement("div");
+                    distanceSlider.innerHTML = /*html*/`
+<div class="ais-Panel">
+    <div class="ais-Panel-header">
+        <span>
+            <div class="name">Afstand</div>
+        </span>
+    </div>
+    <div class="ais-Panel-body">
+        <div>
+            <div class="ais-RangeSlider" id="distance-slider-bar">
+                <div class="rheostat rheostat-horizontal" style="position: relative;">
+                    <div class="rheostat-background"></div>
+                    <div class="rheostat-handle rheostat-handle-upper" role="slider" style="left: 100%; position: absolute;" tabindex="0" id="distance-handle">
+                        <div class="rheostat-tooltip" style="white-space: nowrap; user-select: none;">Alle afstanden</div>
+                    </div>
+                    <div class="rheostat-progress" style="left: 0; width: 100%;" id="distance-progress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+`;
+                    node.insertAdjacentElement("afterend", distanceSlider);
+
+                    const distanceSliderBar = distanceSlider.querySelector("#distance-slider-bar");
+                    const distanceHandle = distanceSlider.querySelector("#distance-handle");
+                    const distanceHandleLabel = distanceHandle.firstElementChild;
+                    const distanceProgress = distanceSlider.querySelector("#distance-progress");
+
+                    let sliding = false;
+                    let percentage = 100;
+                    let selectedThreshold = "95";
+
+                    const thresholds = ["0", "5", "10", "15", "28.5", "40", "52.5", "65", "75", "89", "95", "1000"];
+
+                    // 20, 30, 40, 50, 75, 100, 125, 150, 175, 200, Alle afstanden
+
+                    const thresholdMap = {
+                        "0": ["20 km", 20000],
+                        "5": ["30 km", 30000],
+                        "10": ["40 km", 40000],
+                        "15": ["50 km", 50000],
+                        "28.5": ["75 km", 75000],
+                        "40": ["100 km", 100000],
+                        "52.5": ["125 km", 125000],
+                        "65": ["150 km", 150000],
+                        "75": ["175 km", 175000],
+                        "89": ["200 km", 200000],
+                        "95": ["Alle afstanden", -1]
+                    };
+
+                    function setPercentage(perc, discretize = false) {
+                        percentage = perc;
+                        selectedThreshold = "0";
+
+                        for (const threshold of thresholds) {
+                            if (percentage < parseFloat(threshold)) {
+                                break;
+                            }
+                            selectedThreshold = threshold;
+                        }
+
+                        if (discretize) {
+                            if (selectedThreshold === "95") {
+                                percentage = 100;
+                            } else {
+                                percentage = parseFloat(selectedThreshold);
+                            }
+                        }
+
+                        // UI
+                        distanceHandleLabel.textContent = thresholdMap[selectedThreshold][0];
+                        distanceHandle.style.left = percentage + "%";
+                        distanceProgress.style.width = percentage + "%";
+                    }
+
+                    window.customDistanceSearch.enabled = function() {
+                        return selectedThreshold !== "95";
+                    };
+
+                    window.customDistanceSearch.distanceValue = function() {
+                        console.log("Distance value gotten: ", thresholdMap[selectedThreshold][1]);
+                        return thresholdMap[selectedThreshold][1];
+                    };
+
+                    distanceHandle.addEventListener("pointerdown", (event) => {
+                        sliding = true;
+                    });
+
+                    document.addEventListener("pointerup", (_event) => {
+                        if (sliding) {
+                            setPercentage(percentage, true);
+                            window.customDistanceSearch.search();
+                        }
+                        sliding = false;
+                    });
+
+                    document.addEventListener("pointermove", (event) => {
+                        if (!sliding) {
+                            return;
+                        }
+                        const barRect = distanceSliderBar.getBoundingClientRect();
+                        const x = Math.min(barRect.right, Math.max(barRect.left, event.clientX));
+
+                        setPercentage((x - barRect.left) / (barRect.right - barRect.left) * 100);
+                    });
+                    
+                }
+            }
+        };
+    })).observe(document.body, {
+        childList: true,
+        subtree: true
+    })
+})();
+
 requirejs(['algoliaBundle', 'Magento_Catalog/js/price-utils', 'jquery/jquery.cookie'], function (algoliaBundle, priceUtils) {
     algoliaBundle.$(function ($) {
+        console.log(algoliaBundle);
         /** We have nothing to do here if instantsearch is not enabled **/
         if (!algoliaConfig.instant.enabled || !(algoliaConfig.isSearchPage || !algoliaConfig.autocomplete.enabled)) {
             return;
@@ -88,9 +229,18 @@ requirejs(['algoliaBundle', 'Magento_Catalog/js/price-utils', 'jquery/jquery.coo
         var instantsearchOptions = {
             searchClient: searchClient,
             indexName: indexName,
-            searchFunction: function (helperBypass) {
-                alert("yay2");
-                helperBypass.search();
+            searchFunction: function (helper) {
+                console.log(helper);
+                console.log("yay?");
+                console.log(window.customDistanceSearch.enabled());
+                if (window.customDistanceSearch.enabled()) {
+                    console.log("yay!");
+                    helper.setQueryParameter("aroundLatLng", "52.2133499, 5.1686773");
+                    helper.setQueryParameter("aroundRadius", window.customDistanceSearch.distanceValue()); // meter
+                } else {
+                }
+                console.log(helper.getQuery());
+                helper.search();
                 $('.algolia-instant-replaced-content').hide();
                 $('.algolia-instant-selector-results').show();
             },
