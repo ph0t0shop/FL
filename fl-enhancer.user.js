@@ -52,6 +52,11 @@
             subtree: true
         }
 
+        if (document.querySelector("script[src$='mixins.js']")) {
+            alert("Mixins.js already present! Enable instant injection in Tampermonkey settings.");
+            return;
+        }
+
         const observer = new MutationObserver(callback);
         observer.observe(document, observerOptions);
     } else if (window.location.pathname.split("-").length > 1) {
