@@ -2,7 +2,7 @@
 // FUCK CSP REPORTS!
 
 
-document.querySelector("#instant-hit-template").innerText = /*html*/`<div class="product-item-container">
+document.querySelector("#instant-hit-template").textContent = /*html*/`<div class="product-item-container">
 <meta content="{{__position}}" />
 <div class="result-wrapper"  >
     <meta 
