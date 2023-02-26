@@ -35,8 +35,8 @@
                             }
                             const oldRequirejs = window.requirejs;
                             window.requirejs = function(e,t,n,r){
-                                if (Array.isArray(e) && e.length === 1 && e[0] === "algoliaBundle") return oldRequirejs(["https://cdn.statically.io/gh/ph0t0shop/FL/prod/algoliabundle.js"], t, n, r);
-                                return oldRequirejs(e.map(moduleName => {if (moduleName === "algoliaBundle") return "https://cdn.statically.io/gh/ph0t0shop/FL/prod/algoliabundle.js"; return moduleName;}),t,n,r);
+                                if (Array.isArray(e) && e.length === 1 && e[0] === "algoliaBundle") return oldRequirejs(["https://ph0t0shop.github.io/FL/algoliabundle.js"], t, n, r);
+                                return oldRequirejs(e.map(moduleName => {if (moduleName === "algoliaBundle") return "https://ph0t0shop.github.io/FL/algoliabundle.js"; return moduleName;}),t,n,r);
                             }
                             for (const key in oldRequirejs) {
                                 window.requirejs[key] = oldRequirejs[key];
@@ -71,7 +71,7 @@
                     // console.log(node);
                     if (node.classList !== undefined && node.classList.contains("c-details-tab__description")) {
                         observer.disconnect();
-                        requirejs(["https://cdn.statically.io/gh/ph0t0shop/FL/prod/enhancelisting.js"]);
+                        requirejs(["https://ph0t0shop.github.io/FL/enhancelisting.js"]);
                     }
                 }
             }
