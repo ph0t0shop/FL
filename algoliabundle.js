@@ -512,7 +512,7 @@ async function getAddressData(postcode, number) {
 })();
 
 /*! algoliaBundle 4.4.0-v3 | © Algolia SAS | algolia.com */ ! function(e, t) {
-    "object" == typeof exports && "object" == typeof module ? module.exports = t() : "function" == typeof define && define.amd ? define("https://cdn.jsdelivr.net/gh/ph0t0shop/FL@prod/algoliabundle.js", [], t) : "object" == typeof exports ? exports.algoliaBundle = t() : e.algoliaBundle = t()
+    "object" == typeof exports && "object" == typeof module ? module.exports = t() : "function" == typeof define && define.amd ? define("https://raw.githubusercontent.com/ph0t0shop/FL/prod/algoliabundle.js", [], t) : "object" == typeof exports ? exports.algoliaBundle = t() : e.algoliaBundle = t()
 }(this, function() {
     return function(e) {
         function t(r) {

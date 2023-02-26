@@ -35,8 +35,8 @@
                             }
                             const oldRequirejs = window.requirejs;
                             window.requirejs = function(e,t,n,r){ // https://cdn.jsdelivr.net/gh/ph0t0shop/FL@prod/algoliabundle.js, http://127.0.0.1:5500/algoliabundle.js
-                                if (Array.isArray(e) && e.length === 1 && e[0] === "algoliaBundle") return oldRequirejs(["https://cdn.jsdelivr.net/gh/ph0t0shop/FL@prod/algoliabundle.js"], t, n, r);
-                                return oldRequirejs(e.map(moduleName => {if (moduleName === "algoliaBundle") return "https://cdn.jsdelivr.net/gh/ph0t0shop/FL@prod/algoliabundle.js"; return moduleName;}),t,n,r);
+                                if (Array.isArray(e) && e.length === 1 && e[0] === "algoliaBundle") return oldRequirejs(["https://raw.githubusercontent.com/ph0t0shop/FL/prod/algoliabundle.js"], t, n, r);
+                                return oldRequirejs(e.map(moduleName => {if (moduleName === "algoliaBundle") return "https://raw.githubusercontent.com/ph0t0shop/FL/prod/algoliabundle.js"; return moduleName;}),t,n,r);
                             }
                             for (const key in oldRequirejs) {
                                 window.requirejs[key] = oldRequirejs[key];
@@ -71,7 +71,7 @@
                     // console.log(node);
                     if (node.classList !== undefined && node.classList.contains("c-details-tab__description")) {
                         observer.disconnect();
-                        requirejs(["https://cdn.jsdelivr.net/gh/ph0t0shop/FL@prod/enhancelisting.js"]); // https://cdn.jsdelivr.net/gh/ph0t0shop/FL@prod/enhancelisting.js, http://127.0.0.1:5500/enhancelisting.js
+                        requirejs(["https://raw.githubusercontent.com/ph0t0shop/FL/prod/enhancelisting.js"]); // https://cdn.jsdelivr.net/gh/ph0t0shop/FL@prod/enhancelisting.js, http://127.0.0.1:5500/enhancelisting.js
                     }
                 }
             }
